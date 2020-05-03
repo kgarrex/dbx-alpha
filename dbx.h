@@ -42,148 +42,171 @@ typedef SQLCHAR              dbint8_t;
 #endif
 
 enum dbx_command_type {
-	SqlCmdStoredProc,
-	SqlCmdText,
-	SqlCmdTable
+  SqlCmdStoredProc,
+  SqlCmdText,
+  SqlCmdTable
 };
 
 //need null and default values
 struct dbx_field_desc {
-	const char *name;
-	const int type;
-	const int size;
-	const short offset;
-	const short seq;
+  const char *name;
+  const int type;
+  const int size;
+  const short offset;
+  const short seq;
 };
 
 struct dbx_table_desc {
-	const char *name;
-	const char *schema;
-	const int num_cols;
-	const struct db_field_desc *fld_desc;
+  const char *name;
+  const char *schema;
+  const int num_cols;
+  const struct db_field_desc *fld_desc;
 };
 
 struct dbx_data_desc {
-	const struct db_field_desc *field_descriptor;
-	int data_offset;
-	int length_offset;
+  const struct db_field_desc *field_descriptor;
+  int data_offset;
+  int length_offset;
 };
 
 struct dbx_query_desc {
-	const char *sql;
-	const int flags;
-	const int row_size;
-	const int num_fld;
-	struct dbx_data_desc *data_desc;
+  const char *sql;
+  const int flags;
+  const int row_size;
+  const int num_fld;
+  struct dbx_data_desc *data_desc;
 };
 
 typedef struct _dbconn {
 #ifdef __ODBC__
-	struct {
-		SQLHANDLE hdbc;
-	} odbc;
-#elif __MYSQL__
-	struct {
-		MYSQL *dbc;
-	} mysql;
-#elif __SQLITE__
-	struct {
-		sqlite3 *dbc;
-	} sqlite;
-#endif
-	char *host;
-	char *defdb;
-	short port;
+  struct {
+    SQLHANDLE hdbc;
+  } odbc;
 
-	char hostbuf[64];
-	char dbbuf[64];
+#elif __MYSQL__
+  struct {
+    MYSQL *dbc;
+  } mysql;
+
+#elif __SQLITE__
+  struct {
+    sqlite3 *dbc;
+  } sqlite;
+#endif
+  char *host;
+  char *defdb;
+  short port;
+
+  char hostbuf[64];
+  char dbbuf[64];
 } *dbconn;
 
 typedef struct _dbcommand {
 #ifdef __ODBC__
-	struct {
-		SQLHANDLE hstmt, ipd, ird;
-	} odbc;
+  struct {
+    SQLHANDLE hstmt, ipd, ird;
+  } odbc;
+
 #elif defined(__MYSQL__)
-	struct {
+  struct {
 
-	} mysql;
+  } mysql;
+
 #elif defined(__SQLITE__)
-	struct {
-		sqlite3_stmt *stmt;
-	} sqlite;
+  struct {
+    sqlite3_stmt *stmt;
+  } sqlite;
 #endif
-	dbconn conn;
-	int flags;
-	char *query_string;
-	short query_length;
-	int num_rows;
+  dbconn conn;
+  int flags;
+  char *query_string;
+  short query_length;
+  int num_rows;
 
-	void *databuf;
-	int data_count;
+  void *databuf;
+  int data_count;
 
-	callback_t callback;
-	void *passback;
+  callback_t callback;
+  void *passback;
 
-	struct db_query_desc *query_desc;
+  struct db_query_desc *query_desc;
 
-	struct {
-		void *data;
-	};
+  struct {
+    void *data;
+  };
 
-	char query_stringbuf[256];
+  char query_stringbuf[256];
 } *dbcommand;
 
 
-enum odbc_driver {
-	OdbcDriverSqlServer,
-	OdbcDriverMySql  //MySQL ODBC 5.2 ANSI Driver
+enum OdbcDriver {
+  OdbcDriver_SqlServer,
+  OdbcDriver_MySql,  //MySQL ODBC 5.2 ANSI Driver
+  OdbcDriver_MSAccess
 };
 
-enum odbc_protocol {
-	OdbcProtocolTcpIp,
-	OdbcProtocolNamedPipe,
-	OdbcProtocolSharedMemory
+enum OdbcProtocol{
+  OdbcProtocol_TcpIp,
+  OdbcProtocol_NamedPipe,
+  OdbcProtocol_SharedMemory
+};
+
+struct odbc_conn_info{
+  enum OdbcDriver driver;   
+  char *uid;
+  char *pwd;
+  int flags;
+  union {
+    struct {
+      char *server_name;
+      char *database; 
+      enum OdbcProtocol protocol;
+      short port;
+    } sql_server;
+    struct {
+      char *dbq;
+    } ms_access; 
+  };
 };
 
 enum sql_types {
-	SqlTypeError,
-	SqlTypeChar,
-	SqlTypeSmallint,
-	SqlTypeTinyint,
-	SqlTypeVarchar,
-	SqlTypeUInt64,
-	SqlTypeSInt64,
-	SqlTypeUInt32,
-	SqlTypeSInt32,
-	SqlTypeUInt16,
-	SqlTypeSInt16,
-	SqlTypeUInt8,
-	SqlTypeSInt8,
-	SqlTypeBinary,
-	SqlTypeFloat,
-	SqlTypeDouble,
-	SqlTypeDateTime
+  SqlTypeError,
+  SqlTypeChar,
+  SqlTypeSmallint,
+  SqlTypeTinyint,
+  SqlTypeVarchar,
+  SqlTypeUInt64,
+  SqlTypeSInt64,
+  SqlTypeUInt32,
+  SqlTypeSInt32,
+  SqlTypeUInt16,
+  SqlTypeSInt16,
+  SqlTypeUInt8,
+  SqlTypeSInt8,
+  SqlTypeBinary,
+  SqlTypeFloat,
+  SqlTypeDouble,
+  SqlTypeDateTime
 };
 
 enum db_connection_property {
-	DbConnPropHost,
-	DbConnPropPort,
-	DbConnPropDefaultDb,
-	DbConnPropTimeout,
+  DbConnPropHost,
+  DbConnPropPort,
+  DbConnPropDefaultDb,
+  DbConnPropTimeout,
 };
 
 enum db_command_property {
-	DbCmdPropQueryString,
-	DbCmdPropQueryDescriptor,
-	DbCmdPropMaxRowCount,
-	DbCmdPropQueryTimeout,
-	DbCmdPropDescriptor,
-	DbCmdPropCallback,
+  DbCmdPropQueryString,
+  DbCmdPropQueryDescriptor,
+  DbCmdPropMaxRowCount,
+  DbCmdPropQueryTimeout,
+  DbCmdPropDescriptor,
+  DbCmdPropCallback,
 };
 
 enum db_error {
-	DbErr
+  DbErr
 };
 
 
