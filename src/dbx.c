@@ -174,7 +174,6 @@ int dbxConnect(dbxconn_t conn)
 	SQLRETURN rtn;
 	SQLSMALLINT len;
 	len = make_odbc_connection_string(buf, 256, &conn->odbc.info);
-	//len = make_odbc_connection_string(buf, 256, OdbcDriver_SqlServer, OdbcProtocol_TcpIp, 1433, conn->host, conn->defdb, ODBCCONN_FLAG_TRUSTED);
 	printf("InString: %s\n", buf);
 	rtn = SQLDriverConnect(conn->odbc.hdbc, 0, buf, len, buf, 256, &len, SQL_DRIVER_NOPROMPT);
 	if (rtn != SQL_SUCCESS && rtn != SQL_SUCCESS_WITH_INFO) {
@@ -334,29 +333,24 @@ int dbx_prepare(dbxobj_t obj)
 	}
 
 	#if defined(__MSACCESS__) || defined(__SQLSERVER__)
-	{
-		SQLRETURN rtn;
-		rtn = SQLPrepare(cmd->odbc.hstmt, cmd->query_string, SQL_NTS);
-		if (rtn != SQL_SUCCESS && rtn != SQL_SUCCESS_WITH_INFO) {
-			dbx_command_error(cmd, "SQLPrepare");
-			return 0;
-		}
+	SQLRETURN rtn;
+	rtn = SQLPrepare(cmd->odbc.hstmt, cmd->query_string, SQL_NTS);
+	if (rtn != SQL_SUCCESS && rtn != SQL_SUCCESS_WITH_INFO) {
+		dbx_command_error(cmd, "SQLPrepare");
+		return 0;
 	}
 
 	#elif defined(__MYSQL__)
-	{
-		mysql_stmt_init();
-	}
+	mysql_stmt_init();
 
 	#elif defined(__SQLITE__)
-	{
-		int rtn;
-		//-1 for nul-terminated, otherwise, pass length of query + 1 for null char
-		rtn = sqlite3_prepare_v2(cmd->conn->mysql.dbc, cmd->query_string, -1, &cmd->mysql.stmt, 0);
-		if (rtn != SQLITE_OK) {
-			//error
-		}
+	int rtn;
+	//-1 for nul-terminated, otherwise, pass length of query + 1 for null char
+	rtn = sqlite3_prepare_v2(cmd->conn->mysql.dbc, cmd->query_string, -1, &cmd->mysql.stmt, 0);
+	if (rtn != SQLITE_OK) {
+		//error
 	}
+
 	#endif
 
 	cmd->flags |= DBX_FLAG_PREPARED;

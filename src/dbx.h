@@ -129,6 +129,8 @@ typedef struct _dbxconn {
 	char *defdb;
 	short port;
 
+	int thread_id;
+
 	char hostbuf[64];
 	char dbbuf[64];
 } *dbxconn_t;
