@@ -32,7 +32,7 @@ enum AuthorTableEnum {
   Auth_Subject,
 };
 
-static const struct db_field_desc AuthorTableFields[] = {
+static const struct dbx_field_desc AuthorTableFields[] = {
   {"au_id"},
   {"au_lname"},
   {"au_fname"},
@@ -99,22 +99,24 @@ void add_test_case(const char *desc)
 int main(int argc, char *argv[])
 {
   struct odbc_conn_info coninfo;
-  dbx_conn_t conn;
-  dbx_command_t cmd;
+  dbxconn_t conn;
+  dbxcmd_t cmd;
 
   //Test MS Access connection
-  coninfo.driver = OdbcDriver_MSAccess;
+  coninfo.adapter = DbxAdapter_MSAccess;
 
   dbx_connection_new(&conn);
-  dbx_connection_setprop(conn, DbxConnProp_OdbcDriver, OdbcDriver_MSAccess); 
+  //dbx_connection_setprop(conn, DbxConnProp_OdbcDriver, DbxAdapter_MSAccess); 
 
   char *db = "C:\\Dev\\code\\dbx-alpha\\test\\Access2010DB\\Books2010.accdb";
+  char *db2 = ".\\test\\Access2010DB\\Books2010.accdb";
 
-  dbx_connection_setprop(conn, DbxConnProp_Database, ".\\test\\Access2010DB\\Books2010.accdb");
-  dbx_connect(conn);
+
+  dbxConnSetProp(conn, DbxConnProp_Database, db2);
+  dbxConnect(conn);
 
   dbx_command_new(conn, &cmd);
-  dbx_command_setprop(cmd
+  //dbx_command_setprop(cmd
 
   
   return 1;
