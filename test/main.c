@@ -112,8 +112,11 @@ int main(int argc, char *argv[])
   char *db2 = ".\\test\\Access2010DB\\Books2010.accdb";
 
 
-  dbxConnSetProp(conn, DbxConnProp_Database, db2);
-  dbxConnect(conn);
+  dbxSetProp(cmd, DbxProp_Database, db2);
+  //dbxConnSetProp(conn, DbxConnProp_Database, db2);
+  
+
+  dbxConnect(cmd);
 
   dbx_command_new(conn, &cmd);
   //dbx_command_setprop(cmd

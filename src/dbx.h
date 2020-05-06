@@ -198,6 +198,34 @@ enum sql_types {
 	SqlTypeDateTime
 };
 
+
+enum DbxProp
+{
+	DbxProp_Host,
+	/**< The host name of the db server to make a connetion to. */
+
+	DbxProp_Port,
+	/**< The port used when connecting to a db server. */
+	
+	DbxProp_Database,
+	/**< The default database name or database file used */
+
+	DbxProp_ConnTimeout,
+	/**< The timeout in seconds for a connection to be successful */
+
+	DbxProp_QueryTimeout,
+	DbxProp_QueryString,
+	DbxProp_MaxRowCount,
+
+	DbxProp_Callback,
+	/**< The callback called on each row of a resultset */
+
+    DbxProp_UserData,
+	/**< The data passed to the callback */
+ 
+	DbxProp_QueryDescriptor,
+};
+
 enum dbx_connection_property {
 	DbxConnProp_Host,
 	DbxConnProp_Port,
@@ -227,9 +255,9 @@ int dbx_connection_delete(dbxconn_t conn);
 
 int dbx_command_delete(void *cmd);
 
-int dbxConnect(void *conn);
+int dbx_connect(void *conn);
 
-void dbxDisconnect(dbxconn_t conn);
+void dbx_disconnect(void *conn);
 
 int dbx_command_executecb(void *cmd);
 
@@ -237,8 +265,6 @@ int dbx_command_execute(void *cmd, dbint32_t *num_rows);
 
 int dbx_execute(void *cmd);
 
-int dbxConnSetProp(dbxconn_t conn, enum db_connection_property prop, ...);
-
-int dbxCmdSetProp(void *cmd, enum db_command_property prop, ...);
+int dbxSetProp(void *cmd, int prop, ...);
 
 #endif

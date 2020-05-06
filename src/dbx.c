@@ -214,7 +214,19 @@ void dbx_bindparams(dbxobj_t cmd)
 	}
 }
 
-int dbxConnSetProp(dbxconn_t conn, enum dbx_connection_property prop, ...)
+
+/********************//*
+* @brief Initilize a connection object on a thread
+*
+*/
+
+int dbxThreadInit()
+{
+    malloc(sizeof(struct _dbconn));
+}
+
+int dbxSetProp(void *cmd, int prop, ...)
+//int dbxConnSetProp(dbxconn_t conn, enum dbx_connection_property prop, ...)
 {
 	va_list args;
 	void *ptr;
@@ -223,20 +235,20 @@ int dbxConnSetProp(dbxconn_t conn, enum dbx_connection_property prop, ...)
 	va_start(args, prop);
 	switch (prop) {
 
-		case DbxConnProp_Host:
+		case DbxProp_Host:
 			ptr = va_arg(args, char *);
 			len = strlen((char*)ptr);
 			memcpy(conn->host, ptr, len);
 			conn->host[len] = '\0';
 			break;
 
-		case DbxConnProp_Port: {
+		case DbxProp_Port: {
 			unsigned short port = va_arg(args, unsigned short);
 			conn->port = port;
 		}
 		break;
 
-		case DbxConnProp_Database: {
+		case DbxProp_Database: {
 			ptr = va_arg(args, char *);
 			len = strlen((char*)ptr);
 			memcpy(conn->defdb, ptr, len);
@@ -250,7 +262,7 @@ int dbxConnSetProp(dbxconn_t conn, enum dbx_connection_property prop, ...)
 		}
 		break;
 
-		case DbxConnProp_Timeout: {
+		case DbxProp_ConnTimeout: {
 			int seconds;
 			seconds = va_arg(args, int);
 			#if defined(__MSACCESS__) || defined(__SQLSERVER__)
@@ -260,6 +272,22 @@ int dbxConnSetProp(dbxconn_t conn, enum dbx_connection_property prop, ...)
 			#endif
 		}
 		break;
+
+		case DbxProp_QueryString: {
+			
+		}
+		break;
+
+		case DbxProp_MaxRowCount: {
+							  
+		}
+		break;
+
+		case DbxProp_NumRowsPtr:
+			ptr = va_arg(args, char *);
+			
+		break;
+	
 
 	}
 	va_end(args);
@@ -496,7 +524,8 @@ int _bind_columns(dbxcmd_t cmd)
 		fld_desc = dat_desc->field_descriptor;
 		data_ptr = (char *)cmd->databuf + dat_desc->data_offset;
 		len_ptr = dat_desc->length_offset ? (char *)cmd->databuf + dat_desc->length_offset : 0;
-		rtn = SQLBindCol(cmd->odbc.hstmt, i + 1, db_get_odbc_type(fld_desc->type) >> 16, (SQLPOINTER)data_ptr, fld_desc->size, (SQLLEN*)len_ptr);
+		rtn = SQLBindCol(cmd->odbc.hstmt, i + 1, db_get_odbc_type(fld_desc->type) >> 16,
+			(SQLPOINTER)data_ptr, fld_desc->size, (SQLLEN*)len_ptr);
 		if (rtn != SQL_SUCCESS && rtn != SQL_SUCCESS_WITH_INFO) {
 			dbx_command_error(cmd, "SQLBindCol");
 			return 0;
