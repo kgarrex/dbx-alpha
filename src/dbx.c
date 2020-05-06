@@ -222,15 +222,16 @@ void dbx_bindparams(dbxobj_t cmd)
 
 int dbxThreadInit()
 {
-    malloc(sizeof(struct _dbconn));
+    malloc(sizeof(struct _dbxconn));
 }
 
-int dbxSetProp(void *cmd, int prop, ...)
+int dbxSetProp(void *obj, int prop, ...)
 //int dbxConnSetProp(dbxconn_t conn, enum dbx_connection_property prop, ...)
 {
 	va_list args;
 	void *ptr;
 	int len;
+	dbxcmd_t cmd = obj;
 
 	va_start(args, prop);
 	switch (prop) {
@@ -274,7 +275,12 @@ int dbxSetProp(void *cmd, int prop, ...)
 		break;
 
 		case DbxProp_QueryString: {
-			
+			ptr = va_arg(args, char *);
+			if (!ptr) return 0;
+			cmd->query_string = cmd->query_stringbuf;
+			n = strlen((char*)ptr);
+			memcpy(cmd->query_string, ptr, n);
+			cmd->query_string[n] = '\0';
 		}
 		break;
 
@@ -285,9 +291,9 @@ int dbxSetProp(void *cmd, int prop, ...)
 
 		case DbxProp_NumRowsPtr:
 			ptr = va_arg(args, char *);
+			cmd->num_rows_ptr = ptr;
 			
 		break;
-	
 
 	}
 	va_end(args);
@@ -343,9 +349,9 @@ int dbxCmdSetProp(dbxobj_t obj, enum dbx_command_property prop, ...)
 
 		case DbxCmdProp_Callback: {
 			callback_t cb = va_arg(args, void *);
-			void *pb = va_arg(args, void *);
+			void *ud = va_arg(args, void *);
 			cmd->callback = cb;
-			cmd->passback = pb;
+			cmd->userdata = ud;
 		}
 
 	}
@@ -467,7 +473,7 @@ int dbx_command_new(dbxconn_t conn, dbxobj_t *pobj)
 	cmd->query_string = 0;
 	cmd->num_rows = 0;
 	cmd->callback = 0;
-	cmd->passback = 0;
+	cmd->userdata = 0;
 	return 1;
 }
 
@@ -618,7 +624,7 @@ int dbx_command_executecb(dbxobj_t obj)
 				printf("Success with info\n");
 			}
 		}
-		cmd->callback(cmd->databuf, cmd->num_rows, cmd->passback);
+		cmd->callback(cmd->databuf, cmd->num_rows, cmd->userdata);
 	} while (1);
 
 	#elif defined(__MYSQL__)

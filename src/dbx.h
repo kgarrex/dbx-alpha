@@ -155,12 +155,13 @@ typedef struct _dbxcmd {
 	char *query_string;
 	short query_length;
 	int num_rows;
+	int *num_rows_ptr;
 
 	void *databuf;
 	int data_count;
 
 	callback_t callback;
-	void *passback;
+	void *userdata;
 
 	struct dbx_query_desc *query_desc;
 
@@ -224,6 +225,9 @@ enum DbxProp
 	/**< The data passed to the callback */
  
 	DbxProp_QueryDescriptor,
+
+	DbxProp_NumRowsPtr,
+	/**< A pointer to a integer to return the number of rows */
 };
 
 enum dbx_connection_property {
@@ -255,7 +259,12 @@ int dbx_connection_delete(dbxconn_t conn);
 
 int dbx_command_delete(void *cmd);
 
-int dbx_connect(void *conn);
+/**
+ * @brief Make a connection to a remote/local database
+ *
+ * @param obj a dbx object acquired from a call to dbxobj
+ */
+int dbx_connect(void *obj);
 
 void dbx_disconnect(void *conn);
 
