@@ -40,12 +40,12 @@
 typedef int(*callback_t)(void *, int, void *);
 
 #if defined(__SQLSERVER__) || defined(__MSACCESS__)
-typedef SQL_TIMESTAMP_STRUCT dbdatetime_t;
-typedef SQLCHAR							dbchar_t;
-typedef SQLCHAR							dbvarchar_t;
-typedef SQLINTEGER					 dbint32_t;
-typedef SQLSMALLINT					dbint16_t;
-typedef SQLCHAR							dbint8_t;
+typedef SQL_TIMESTAMP_STRUCT 	dbdatetime_t;
+typedef SQLCHAR			dbchar_t;
+typedef SQLCHAR			dbvarchar_t;
+typedef SQLINTEGER 		dbint32_t;
+typedef SQLSMALLINT		dbint16_t;
+typedef SQLCHAR			dbint8_t;
 
 enum DbxAdapter {
 	DbxAdapter_SqlServer,
@@ -275,5 +275,8 @@ int dbx_command_execute(void *cmd, dbint32_t *num_rows);
 int dbx_execute(void *cmd);
 
 int dbxSetProp(void *cmd, int prop, ...);
+
+void *dbx_create_connection_pool();
+void *dbx_create_single_connection();
 
 #endif

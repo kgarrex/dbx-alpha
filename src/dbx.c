@@ -225,6 +225,11 @@ int dbxThreadInit()
     malloc(sizeof(struct _dbxconn));
 }
 
+/**
+ * @brief 
+ * @param
+ */
+
 int dbxSetProp(void *obj, int prop, ...)
 //int dbxConnSetProp(dbxconn_t conn, enum dbx_connection_property prop, ...)
 {
@@ -285,15 +290,41 @@ int dbxSetProp(void *obj, int prop, ...)
 		break;
 
 		case DbxProp_MaxRowCount: {
-							  
+			n = va_arg(args, int);
+			#if defined(__MSACCESS__) || defined(__SQLSERVER__)
+			SQLSetStmtAttr(cmd->odbc.hstmt, SQL_ATTR_MAX_ROWS, (SQLPOINTER)&n, sizeof(n));
+			#endif
+			  
 		}
 		break;
 
 		case DbxProp_NumRowsPtr:
 			ptr = va_arg(args, char *);
 			cmd->num_rows_ptr = ptr;
-			
 		break;
+
+		case DbxProp_CmdTimeout:
+			int seconds = va_arg(args, int);
+			#if defined(__MSACCESS__) || defined(__SQLSERVER__)
+			SQLSetStmtAttr(cmd->odbc.hstmt, SQL_ATTR_QUERY_TIMEOUT, (SQLPOINTER)seconds, 0);
+			#elif defined(__MYSQL__)
+			//mysql_options(cmd->mysql, MYSQL_OPT_READ_TIMEOUT, 0);
+			//mysql_options(cmd->mysql, MYSQL_OPT_WRITE_TIMEOUT, 0);
+			#endif
+		break;
+	
+
+		case DbxProp_Descriptor: {
+			void *desc = va_arg(args, void*);
+			void *buf = va_arg(args, void *);
+			int bufsize = va_arg(args, int);
+			cmd->query_desc = desc;
+			cmd->databuf = buf;
+			cmd->data_count = bufsize;
+			cmd->query_string = (char*)cmd->query_desc->sql;
+		} break;
+
+
 
 	}
 	va_end(args);
@@ -324,6 +355,7 @@ int dbxCmdSetProp(dbxobj_t obj, enum dbx_command_property prop, ...)
 			#if defined(__MSACCESS__) || defined(__SQLSERVER__)
 			SQLSetStmtAttr(cmd->odbc.hstmt, SQL_ATTR_MAX_ROWS, (SQLPOINTER)&n, sizeof(n));
 			#endif
+
 		} break;
 
 		case DbxCmdProp_QueryTimeout: {

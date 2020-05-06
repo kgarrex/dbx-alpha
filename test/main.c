@@ -105,6 +105,8 @@ int main(int argc, char *argv[])
   //Test MS Access connection
   coninfo.adapter = DbxAdapter_MSAccess;
 
+  //dbx_create_single_connection();
+
   dbx_connection_new(&conn);
   //dbx_connection_setprop(conn, DbxConnProp_OdbcDriver, DbxAdapter_MSAccess); 
 
